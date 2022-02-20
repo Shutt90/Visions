@@ -12,9 +12,6 @@ var config = {
         }
     },
     scene: [Hospital1],
-    scale: {
-        zoom: 1,
-    }
 
 };
 
