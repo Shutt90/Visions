@@ -1,0 +1,21 @@
+{ "frames": {
+   "0": {
+    "frame": { "x": 0, "y": 0, "w": 24, "h": 32 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 4, "y": 0, "w": 24, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3-beta11-x64",
+  "image": "demon-doc.png",
+  "format": "RGBA8888",
+  "size": { "w": 24, "h": 32 },
+  "scale": "1",
+  "frameTags": [
+  ]
+ }
+}

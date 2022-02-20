@@ -7,6 +7,11 @@ import heroJSON from '../assets/sprites/mentalman.json';
 
 // Enemies
 
+import doctorPNG from '../assets/enemies/doctor.png';
+import doctorJSON from '../assets/enemies/doctor.json';
+import demonPNG from '../assets/enemies/demon-doc.png';
+import demonJSON from '../assets/enemies/demon-doc.json';
+
 // Maps
 
 import hospitalCorridorsPNG from '../assets/maps/hospitalCorridors.png'
@@ -24,15 +29,14 @@ class Hospital1 extends Phaser.Scene
     preload () {
 
         this.load.aseprite('hero', heroPNG, heroJSON)
+        this.load.aseprite('doctor', doctorPNG, doctorJSON)
         this.load.image('hospitalImage', hospitalCorridorsPNG);
         this.load.tilemapTiledJSON('hospitalTiles', hospitalCorridorsJSON);
-
     }
 
     create () {    
         
         this.cursors = this.input.keyboard.createCursorKeys();
-
 
         this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
@@ -41,18 +45,26 @@ class Hospital1 extends Phaser.Scene
         this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 
-        const map = this.make.tilemap({key: 'hospitalTiles', tileHeight: 32, tileWidth: 32})
-        const tileset = map.addTilesetImage('newhospital', 'hospitalImage');
-        const floor = map.createLayer('floor', tileset, 400, 300);
-        const walls = map.createLayer('walls', tileset, 400, 300);
-        const otherwalls = map.createLayer('otherwalls', tileset, 400, 300);
+        this.anims.createFromAseprite('doctor')
+
+        const map = this.make.tilemap({key: 'hospitalTiles'})
+        const tileset = map.addTilesetImage('newhospital', 'hospitalImage', 32, 32, 0, 0);
+        const floor = map.createLayer('floor', tileset, 0, 0);
+        const walls = map.createLayer('walls', tileset, 0, 0);
+        const otherwalls = map.createLayer('otherwalls', tileset, 0, 0);
 
         this.hero = this.physics.add.sprite(50, 50, 'hero')
+        this.doctor = this.physics.add.sprite(300, 100, 'doctor')
+        this.hero.setCollideWorldBounds(true)
+        this.doctor.setCollideWorldBounds(true)
+        this.hero.setScale(1.5)
+        this.doctor.setScale(1.5)
 
-        this.physics.add.collider(this.hero, floor, function() {
-            console.log('collision')
-        });
+        this.physics.add.collider(this.hero, walls)
+        this.physics.add.collider(this.hero, this.doctor, function() {
+            this.scene.restart()
 
+        }, null, this)
         
     }
 
@@ -62,9 +74,9 @@ class Hospital1 extends Phaser.Scene
 
         if(this.keyW.isDown){
             this.hero.setVelocityY(-100)
-        } else if(this.keyS.isDown) {w
+        } else if(this.keyS.isDown) {
             this.hero.setVelocityY(100)
-        } else {
+        } else {d
             this.hero.setVelocityY(0)
         }
 
@@ -78,9 +90,12 @@ class Hospital1 extends Phaser.Scene
             this.hero.setVelocityX(0)
         }
 
+        var dist = Phaser.Math.Distance.BetweenPoints(this.hero, this.doctor);
 
-
-
+        if(dist < 100) {
+            this.doctor.play('transform', true)
+            this.physics.moveToObject( this.doctor, this.hero)
+        }
 
     }
 

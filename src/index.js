@@ -13,7 +13,7 @@ var config = {
     },
     scene: [Hospital1],
     scale: {
-        zoom: 2,
+        zoom: 1,
     }
 
 };
