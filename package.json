@@ -1,0 +1,17 @@
+{
+  "name": "visions",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel serve src/index.html"
+
+  },
+  "keywords": [],
+  "author": "Liam Pugh",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.3.2",
+    "phaser": "^3.55.2"
+  }
+}
