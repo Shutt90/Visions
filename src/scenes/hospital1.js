@@ -7,6 +7,9 @@ import heroJSON from '../assets/sprites/mentalman.json';
 
 import musicOn from '../assets/objects/music-on.png';
 import musicOff from '../assets/objects/music-off.png';
+import pillPNG from '../assets/objects/pill.png';
+import pillJSON from '../assets/objects/pill.json';
+
 
 // Enemies
 
@@ -37,11 +40,14 @@ class Hospital1 extends Phaser.Scene
 
         this.load.aseprite('hero', heroPNG, heroJSON)
         this.load.aseprite('doctor', doctorPNG, doctorJSON)
+        this.load.image('demon', demonPNG, demonJSON)
         this.load.image('hospitalImage', hospitalCorridorsPNG);
         this.load.tilemapTiledJSON('hospitalTiles', hospitalCorridorsJSON);
         this.load.audio('music', backgroundMusic);
         this.load.image('musicOn', musicOn)
         this.load.image('musicOff', musicOff)
+
+        this.load.aseprite('pill', pillPNG, pillJSON)
         
     }
 
@@ -61,17 +67,20 @@ class Hospital1 extends Phaser.Scene
 
         const map = this.make.tilemap({key: 'hospitalTiles'})
         const tileset = map.addTilesetImage('newhospital', 'hospitalImage', 32, 32, 0, 0);
-        const floor = map.createLayer('floor', tileset, 0, 0);
-        const walls = map.createLayer('walls', tileset, 0, 0);
-        const otherwalls = map.createLayer('otherwalls', tileset, 0, 0);
+        const floor = map.createLayer('Floor', tileset, 0, 0);
+        const walls = map.createLayer('Walls', tileset, 0, 0);
+        const coliders = map.createLayer('Colliders', tileset, 0, 0);
 
         // SPRITES AREA
         this.hero = this.physics.add.sprite(50, 50, 'hero')
         this.doctor = this.physics.add.sprite(300, 100, 'doctor')
+        this.pill = this.physics.add.sprite(Phaser.Math.Between(0, width), Phaser.Math.Between(0, height), 'pill')
         this.hero.setCollideWorldBounds(true)
         this.doctor.setCollideWorldBounds(true)
         this.hero.setScale(1.5)
         this.doctor.setScale(1.5)
+
+        this.doctor.setTexture('demon')
 
         // LIGHTS CODE TO BE ADDED LATER WHEN OBJECTS CREATED
         // this.hero.setPipeline('Light2D');
@@ -84,15 +93,20 @@ class Hospital1 extends Phaser.Scene
         // COLLIDERS
 
         this.physics.add.collider(this.hero, walls)
+        this.physics.add.collider(this.hero, this.pill, function() {
+            this.doctor.play('transform', {repeat: 2})
+            this.pill.destroy()
+        }, null, this)
+
         this.physics.add.collider(this.hero, this.doctor, function() {
             this.scene.restart()
             gameOver = true
         }, null, this)
 
+        this.physics.add.collider(this.hero, floor)
+
 
         // AUDIO
-
-        console.log(this.music)
         
         this.audioIcon = this.add.image( width - 32 , 32, 'musicOn')
 
@@ -135,7 +149,6 @@ class Hospital1 extends Phaser.Scene
         var dist = Phaser.Math.Distance.BetweenPoints(this.hero, this.doctor);
 
         if(dist < 100) {
-            this.doctor.play('transform', true)
             this.physics.moveToObject( this.doctor, this.hero)
         }
 
