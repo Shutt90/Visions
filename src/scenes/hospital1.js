@@ -9,6 +9,8 @@ import musicOn from '../assets/objects/music-on.png';
 import musicOff from '../assets/objects/music-off.png';
 import pillPNG from '../assets/objects/pill.png';
 import pillJSON from '../assets/objects/pill.json';
+import boxPNG from '../assets/objects/box.png';
+import boxJSON from '../assets/objects/box.json';
 
 
 // Enemies
@@ -29,7 +31,7 @@ let gameOver = false;
 const width = 800
 const height = 640
 
-
+var line1 = new Phaser.Curves.Line([ 100, 100, 200, 200 ]);
 
 class Hospital1 extends Phaser.Scene
 {
@@ -48,7 +50,8 @@ class Hospital1 extends Phaser.Scene
         this.load.image('musicOff', musicOff)
 
         this.load.aseprite('pill', pillPNG, pillJSON)
-        
+        this.load.aseprite('box', boxPNG, boxJSON)
+
     }
 
     create () {            
@@ -64,6 +67,7 @@ class Hospital1 extends Phaser.Scene
         this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         this.anims.createFromAseprite('doctor')
+        this.anims.createFromAseprite('box')
 
         const map = this.make.tilemap({key: 'hospitalTiles'})
         const tileset = map.addTilesetImage('newhospital', 'hospitalImage', 32, 32, 0, 0);
@@ -75,12 +79,20 @@ class Hospital1 extends Phaser.Scene
         this.hero = this.physics.add.sprite(50, 50, 'hero')
         this.doctor = this.physics.add.sprite(300, 100, 'doctor')
         this.pill = this.physics.add.sprite(Phaser.Math.Between(0, width), Phaser.Math.Between(0, height), 'pill')
+        this.box = this.physics.add.sprite(height / 2, width /2, 'box') 
+        this.box.setScale(2)
         this.hero.setCollideWorldBounds(true)
         this.doctor.setCollideWorldBounds(true)
+        this.box.body.setImmovable()
         this.hero.setScale(1.5)
         this.doctor.setScale(1.5)
 
         this.doctor.setTexture('demon')
+        this.hero.immovable = false
+
+        this.demon = this.add.follower(line1, 50, 200, 'demon')
+        this.demon.startFollow(4000);
+        console.log(this.demon.physics)
 
         // LIGHTS CODE TO BE ADDED LATER WHEN OBJECTS CREATED
         // this.hero.setPipeline('Light2D');
@@ -104,6 +116,17 @@ class Hospital1 extends Phaser.Scene
         }, null, this)
 
         this.physics.add.collider(this.hero, floor)
+        this.physics.add.collider(this.hero, this.box, function() {
+            if(this.keyF.isUp) {
+                if(this.hero.visible) {
+                    this.box.play('open', {repeat: 1})
+                    this.hero.setVisible(false)
+                    this.hero.immovable = true
+                }
+                
+            }
+        }, null, this)
+
 
 
         // AUDIO
@@ -112,15 +135,14 @@ class Hospital1 extends Phaser.Scene
 
         this.audioIcon.setInteractive().setScale(2.5).on('pointerdown', function() {
             if(this.music.isPlaying) {
-                console.log('true')
                 this.music.pause();
                 this.audioIcon.setTexture('musicOff')
             } else if (this.music.isPaused){
-                console.log('false')
                 this.music.resume();
                 this.audioIcon.setTexture('musicOn')
             }
         }, this)
+        
 
     }
 
@@ -128,19 +150,19 @@ class Hospital1 extends Phaser.Scene
 
         // Vertical movement
 
-        if(this.keyW.isDown){
+        if(this.keyW.isDown && this.hero.immovable === false){
             this.hero.setVelocityY(-100)
-        } else if(this.keyS.isDown) {
+        } else if(this.keyS.isDown && this.hero.immovable === false) {
             this.hero.setVelocityY(100)
-        } else {d
+        } else {
             this.hero.setVelocityY(0)
         }
 
         // Horizontal movement
 
-        if(this.keyA.isDown){
+        if(this.keyA.isDown && this.hero.immovable === false){
             this.hero.setVelocityX(-100)
-        } else if(this.keyD.isDown) {
+        } else if(this.keyD.isDown && this.hero.immovable === false) {
             this.hero.setVelocityX(100)
         } else {
             this.hero.setVelocityX(0)
@@ -151,9 +173,16 @@ class Hospital1 extends Phaser.Scene
         if(dist < 100) {
             this.physics.moveToObject( this.doctor, this.hero)
         }
-
+                
+        if(!this.hero.visible) {
+            if(this.keyF.isDown) {
+                console.log('test')
+                this.box.play('open', {repeat: 1})
+                this.hero.setVisible(true)
+                this.hero.immovable = false
+            }
+        }
     }
-
     
 }
 
