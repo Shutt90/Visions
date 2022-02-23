@@ -21,7 +21,7 @@ import demonPNG from '../assets/enemies/demon-doc.png';
 import demonJSON from '../assets/enemies/demon-doc.json';
 
 // Maps
-import hospitalCorridorsPNG from '../assets/maps/hospitalCorridors.png'
+import hospitalCorridorsPNG from '../assets/maps/newhospital.png'
 import hospitalCorridorsJSON from '../assets/maps/hospitalCorridors.json'
 
 // Sound
@@ -43,8 +43,8 @@ class Hospital1 extends Phaser.Scene
         this.load.aseprite('hero', heroPNG, heroJSON)
         this.load.aseprite('doctor', doctorPNG, doctorJSON)
         this.load.image('demon', demonPNG, demonJSON)
-        this.load.image('hospitalImage', hospitalCorridorsPNG);
-        this.load.tilemapTiledJSON('hospitalTiles', hospitalCorridorsJSON);
+        this.load.tilemapTiledJSON('tilemap2', hospitalCorridorsJSON)
+		this.load.image('tiles2', hospitalCorridorsPNG)
         this.load.audio('music', backgroundMusic);
         this.load.image('musicOn', musicOn)
         this.load.image('musicOff', musicOff)
@@ -55,6 +55,15 @@ class Hospital1 extends Phaser.Scene
     }
 
     create () {            
+        // this.cameras.main.zoom = 0.5;
+        
+        const map = this.make.tilemap({ key: 'tilemap2', tileWidth: 32, tileHeight: 32})
+		const tileset = map.addTilesetImage('newhospital', 'tiles2')
+        map.createLayer('Walls', tileset)
+
+        map.createLayer('Ground', tileset)
+        map.createLayer('Objects', tileset)
+
         this.cursors = this.input.keyboard.createCursorKeys();
 
         this.music = this.sound.add('music', {loop: true})
@@ -68,12 +77,6 @@ class Hospital1 extends Phaser.Scene
         this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         this.anims.createFromAseprite('doctor')
         this.anims.createFromAseprite('box')
-
-        const map = this.make.tilemap({key: 'hospitalTiles'})
-        const tileset = map.addTilesetImage('newhospital', 'hospitalImage', 32, 32, 0, 0);
-        const floor = map.createLayer('Floor', tileset, 0, 0);
-        const walls = map.createLayer('Walls', tileset, 0, 0);
-        const coliders = map.createLayer('Colliders', tileset, 0, 0);
 
         // SPRITES AREA
         this.hero = this.physics.add.sprite(50, 50, 'hero')
@@ -92,7 +95,6 @@ class Hospital1 extends Phaser.Scene
 
         this.demon = this.add.follower(line1, 50, 200, 'demon')
         this.demon.startFollow(4000);
-        console.log(this.demon.physics)
 
         // LIGHTS CODE TO BE ADDED LATER WHEN OBJECTS CREATED
         // this.hero.setPipeline('Light2D');
@@ -104,7 +106,6 @@ class Hospital1 extends Phaser.Scene
 
         // COLLIDERS
 
-        this.physics.add.collider(this.hero, walls)
         this.physics.add.collider(this.hero, this.pill, function() {
             this.doctor.play('transform', {repeat: 2})
             this.pill.destroy()
@@ -115,7 +116,6 @@ class Hospital1 extends Phaser.Scene
             gameOver = true
         }, null, this)
 
-        this.physics.add.collider(this.hero, floor)
         this.physics.add.collider(this.hero, this.box, function() {
             if(this.keyF.isUp) {
                 if(this.hero.visible) {
@@ -176,7 +176,6 @@ class Hospital1 extends Phaser.Scene
                 
         if(!this.hero.visible) {
             if(this.keyF.isDown) {
-                console.log('test')
                 this.box.play('open', {repeat: 1})
                 this.hero.setVisible(true)
                 this.hero.immovable = false

@@ -12,6 +12,7 @@ var config = {
         }
     },
     scene: [Hospital1],
+    zoom: 1
 
 };
 
