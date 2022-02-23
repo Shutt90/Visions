@@ -59,10 +59,12 @@ class Hospital1 extends Phaser.Scene
         
         const map = this.make.tilemap({ key: 'tilemap2', tileWidth: 32, tileHeight: 32})
 		const tileset = map.addTilesetImage('newhospital', 'tiles2')
-        map.createLayer('Walls', tileset)
+        this.walls = map.createLayer('Walls', tileset)
+        this.ground = map.createLayer('Ground', tileset)
+        this.objects = map.createLayer('Objects', tileset)
 
-        map.createLayer('Ground', tileset)
-        map.createLayer('Objects', tileset)
+        this.walls.setCollisionByExclusion([-1]);
+        this.objects.setCollisionByExclusion([-1])
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -79,7 +81,7 @@ class Hospital1 extends Phaser.Scene
         this.anims.createFromAseprite('box')
 
         // SPRITES AREA
-        this.hero = this.physics.add.sprite(50, 50, 'hero')
+        this.hero = this.physics.add.sprite(100, 100, 'hero')
         this.doctor = this.physics.add.sprite(300, 100, 'doctor')
         this.pill = this.physics.add.sprite(Phaser.Math.Between(0, width), Phaser.Math.Between(0, height), 'pill')
         this.box = this.physics.add.sprite(height / 2, width /2, 'box') 
@@ -111,6 +113,8 @@ class Hospital1 extends Phaser.Scene
             this.pill.destroy()
         }, null, this)
 
+        this.physics.add.collider(this.hero, this.walls)
+        this.physics.add.collider(this.hero, this.objects)
         this.physics.add.collider(this.hero, this.doctor, function() {
             this.scene.restart()
             gameOver = true
